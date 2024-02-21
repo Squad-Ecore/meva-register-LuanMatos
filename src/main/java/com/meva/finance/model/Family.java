@@ -1,7 +1,12 @@
 package com.meva.finance.model;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "family")
 public class Family {
@@ -10,18 +15,4 @@ public class Family {
     @Column(name = "id_family")
     private Integer id;
     private String description;
-
-    //Getters e Setters
-    public Integer getId() {
-        return id;
-    }
-    public void setId(Integer id) {
-        this.id = id;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

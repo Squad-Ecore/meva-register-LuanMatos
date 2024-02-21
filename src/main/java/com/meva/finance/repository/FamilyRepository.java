@@ -4,5 +4,4 @@ import com.meva.finance.model.Family;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FamilyRepository extends JpaRepository<Family, Integer> {
-    Family findByDescription(String description);
 }

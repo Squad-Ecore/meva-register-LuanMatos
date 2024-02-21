@@ -1,51 +1,50 @@
 package com.meva.finance.service;
 
-import com.meva.finance.dto.FamilyDto;
 import com.meva.finance.dto.UserDto;
+import com.meva.finance.exception.CustomException;
 import com.meva.finance.model.Family;
 import com.meva.finance.model.User;
 import com.meva.finance.repository.FamilyRepository;
 import com.meva.finance.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.util.UriComponentsBuilder;
 
-
-import javax.validation.Valid;
-import java.net.URI;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private FamilyRepository familyRepository;
 
-    //Método cadastra usuário retornando 201.
-    public ResponseEntity<UserDto> cadastrar(@RequestBody UserDto userDto) {
+    @Transactional
+    public ResponseEntity<UserDto> cadastrar(UserDto userDto) {
+        User user = userDto.converter();
 
-            User user = userDto.converter();
+        Optional<Family> optionalFamily = familyRepository.findById(user.getFamily().getId());
 
-            Optional<Family> optionalFamily = familyRepository.findById(user.getFamily().getId());
+        if (user.getFamily().getId() == 0) {
+            //Cria uma nova família
+            Family newFamily = new Family();
+            newFamily.setDescription(userDto.getFamilyDto().getDescription());
+            familyRepository.save(newFamily);
 
-        
-    }
-/*
-    public Family validarFamily(FamilyDto familyDto){
+            //Associa o usuário a nova família criada
+            user.setFamily(newFamily);
 
-        if(user.getFamily().getId() == 0){
-            return ResponseEntity.ok().build();
-        }
-        else if(optionalFamily.isPresent()){
+            //Salva o novo usuário
             userRepository.save(user);
-            return ResponseEntity.created(uri).body(new UserDto(user));
-        }  else{
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().build();
+
+        } else if (optionalFamily.isPresent()) {
+            userRepository.save(user);
+            return ResponseEntity.ok().build();
+
+        } else {
+            throw new CustomException("Não existe uma família com esse ID: " + user.getFamily().getId());
         }
-    }*/
+    }
 }

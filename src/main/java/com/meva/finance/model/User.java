@@ -1,19 +1,17 @@
 package com.meva.finance.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Entity
-@Table(name = "user_meva")
-@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "user_meva")
 public class User {
 
     @Id
