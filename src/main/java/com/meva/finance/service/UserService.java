@@ -9,19 +9,21 @@ import com.meva.finance.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
+import java.net.URI;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService implements InterfaceService<UserDto> {
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private FamilyRepository familyRepository;
 
     @Transactional
-    public ResponseEntity<UserDto> cadastrar(UserDto userDto) {
+    public ResponseEntity<UserDto> register(UserDto userDto) {
         User user = userDto.converter();
 
         Optional<Family> optionalFamily = familyRepository.findById(user.getFamily().getId());
@@ -46,5 +48,29 @@ public class UserService {
         } else {
             throw new CustomException("Não existe uma família com esse ID: " + user.getFamily().getId());
         }
+    }
+
+    @Transactional
+    public ResponseEntity<UserDto> update(UserDto userDto, UriComponentsBuilder builder) {
+
+        User user = userDto.converter();
+
+        Optional<User> optionalUser = userRepository.findById(user.getCpf());
+
+        URI uri = builder.path("/users/update/{cpf}").buildAndExpand(user.getCpf()).toUri();
+
+        Optional<Family> optionalFamily = familyRepository.findById(user.getFamily().getId());
+
+        if (optionalUser.isPresent()) {
+            if (optionalFamily.isPresent()) {
+                userRepository.save(user);
+                return ResponseEntity.created(uri).body(new UserDto(user));
+            } else {
+                throw new CustomException("Não existe uma família com esse ID: " + user.getFamily().getId());
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 }

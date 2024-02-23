@@ -25,5 +25,24 @@ public class UserDto {
         Family family = familyDto.converter(familyDto);
         return new User(cpf, name, genre, birth, state, city, family);
     }
+
+    //Construtor necessário na chamada do URI do método "update"
+    public UserDto(User user) {
+        this.cpf = user.getCpf();
+        this.name = user.getName();
+        this.genre = user.getGenre();
+        this.birth = user.getBirth();
+        this.state = user.getState();
+        this.city = user.getCity();
+        this.familyDto = convertFamilyToFamilyDto(user.getFamily());
+    }
+
+    // Método para converter Family para FamilyDto
+    private FamilyDto convertFamilyToFamilyDto(Family family) {
+        FamilyDto familyDto = new FamilyDto();
+        familyDto.setId(family.getId());
+        familyDto.setDescription(family.getDescription());
+        return familyDto;
+    }
 }
 
