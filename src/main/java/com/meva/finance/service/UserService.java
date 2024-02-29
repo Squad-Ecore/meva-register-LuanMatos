@@ -17,10 +17,14 @@ import java.util.Optional;
 
 @Service
 public class UserService implements InterfaceService<UserDto> {
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
     private FamilyRepository familyRepository;
+
+    @Autowired
+    public UserService(UserRepository userRepository, FamilyRepository familyRepository) {
+        this.userRepository = userRepository;
+        this.familyRepository = familyRepository;
+    }
 
     @Transactional
     public ResponseEntity<UserDto> register(UserDto userDto) {
@@ -29,17 +33,7 @@ public class UserService implements InterfaceService<UserDto> {
         Optional<Family> optionalFamily = familyRepository.findById(user.getFamily().getId());
 
         if (user.getFamily().getId() == 0) {
-            //Cria uma nova família
-            Family newFamily = new Family();
-            newFamily.setDescription(userDto.getFamilyDto().getDescription());
-            familyRepository.save(newFamily);
-
-            //Associa o usuário a nova família criada
-            user.setFamily(newFamily);
-
-            //Salva o novo usuário
-            userRepository.save(user);
-            return ResponseEntity.ok().build();
+            return registerNewFamilyAndUser(userDto, user);
 
         } else if (optionalFamily.isPresent()) {
             userRepository.save(user);
@@ -71,6 +65,18 @@ public class UserService implements InterfaceService<UserDto> {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
 
+    private ResponseEntity<UserDto> registerNewFamilyAndUser(UserDto userDto, User user) {
+        Family newFamily = createAndSaveNewFamily(userDto);
+        user.setFamily(newFamily);
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
+    private Family createAndSaveNewFamily(UserDto userDto) {
+        Family newFamily = new Family();
+        newFamily.setDescription(userDto.getFamilyDto().getDescription());
+        return familyRepository.save(newFamily);
     }
 }
