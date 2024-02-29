@@ -10,8 +10,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
     private UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<UserDto> register(@RequestBody UserDto userDto) {
