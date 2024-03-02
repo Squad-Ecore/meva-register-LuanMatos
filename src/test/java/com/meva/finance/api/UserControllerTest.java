@@ -29,7 +29,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testRegisterSuccessfully(){
+    void testRegisterSuccessfully() {
         // User and Response Entity
         UserDto userDto = createUserDto();
         ResponseEntity<UserDto> userDtoResponseEntity = ResponseEntity.ok().build();
@@ -46,7 +46,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testUpdateSuccessfully(){
+    void testUpdateSuccessfully() {
         // User, UriComponentsBuilder e Response Entity
         UserDto userDto = createUserDto();
         ResponseEntity<UserDto> userDtoResponseEntity = ResponseEntity.ok().build();
@@ -63,7 +63,7 @@ public class UserControllerTest {
         assertEquals(200, responseEntity.getStatusCodeValue());
     }
 
-    private UserDto createUserDto(){
+    private UserDto createUserDto() {
         UserDto userDto = new UserDto();
         userDto.setCpf("47858747858");
         userDto.setName("Leonardo");

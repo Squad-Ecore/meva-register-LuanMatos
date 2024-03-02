@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.Optional;
 
@@ -40,8 +42,9 @@ public class UserServiceTest {
         User user = userDto.converter();
 
         // Mock behavior
-        when(familyRepositoryMock.save(any(Family.class))).thenReturn(new Family());
+        when(familyRepositoryMock.save(any(Family.class))).thenReturn(user.getFamily());
         when(userRepositoryMock.save(any(User.class))).thenReturn(user);
+        //when(familyRepositoryMock.findById(userDto.getFamilyDto().getId())).thenReturn(Optional.empty());
 
         // Call the method
         ResponseEntity<UserDto> responseEntity = userService.register(userDto);
@@ -59,6 +62,7 @@ public class UserServiceTest {
 
         // Mock behavior
         when(familyRepositoryMock.findById(anyInt())).thenReturn(Optional.ofNullable(user.getFamily()));
+        when(userRepositoryMock.save(any(User.class))).thenReturn(user);
 
         // Call the method
         ResponseEntity<UserDto> responseEntity = userService.register(userDto);
@@ -69,7 +73,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testException() {
+    void testRegisterException() {
         // User and Family DTOs
         UserDto userDto = createUserDto(1);
         User user = userDto.converter();
@@ -85,6 +89,69 @@ public class UserServiceTest {
         } catch (Exception e) {
             assertEquals("Não existe uma família com esse ID: " + user.getFamily().getId(), e.getMessage());
         }
+    }
+
+
+    @Test
+    void testUpdateWhenUserAndFamilyIsPresent() {
+        // User DTOs
+        UserDto userDto = createUserDto(1);
+        User user = userDto.converter();
+
+        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8080/users/update/{cpf}").buildAndExpand(user.getCpf()).toUri();
+
+        // Mock behavior
+        when(userRepositoryMock.findById(any())).thenReturn(Optional.of(user));
+        when(familyRepositoryMock.findById(anyInt())).thenReturn(Optional.ofNullable(user.getFamily()));
+        when(userRepositoryMock.save(any(User.class))).thenReturn(user);
+
+        // Call the method
+        ResponseEntity<UserDto> responseEntity = userService.update(userDto, UriComponentsBuilder.fromUri(uri));
+
+        // Assertions
+        assertNotNull(responseEntity);
+        assertEquals(201, responseEntity.getStatusCodeValue());
+    }
+
+    @Test
+    void testUpdateWhenUserIsPresentButFamilyNot() {
+        // User DTOs
+        UserDto userDto = createUserDto(1);
+        User user = userDto.converter();
+
+        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8080/users/update/{cpf}").buildAndExpand(user.getCpf()).toUri();
+
+        // Mock behavior
+        when(userRepositoryMock.findById(any())).thenReturn(Optional.of(user));
+        when(familyRepositoryMock.findById(anyInt())).thenReturn(Optional.empty());
+
+        // Assertions
+        try {
+            // Call the method
+            ResponseEntity<UserDto> responseEntity = userService.update(userDto, UriComponentsBuilder.fromUri(uri));
+            fail("Não deu a exception");
+        } catch (Exception e) {
+            assertEquals("Não existe uma família com esse ID: " + user.getFamily().getId(), e.getMessage());
+        }
+    }
+
+    @Test
+    void testUpdateWhenUserDoesNotExist() {
+        // User DTOs
+        UserDto userDto = createUserDto(1);
+        User user = userDto.converter();
+
+        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8080/users/update/{cpf}").buildAndExpand(user.getCpf()).toUri();
+
+        // Mock behavior
+        when(userRepositoryMock.findById(any())).thenReturn(Optional.empty());
+
+        // Call the method
+        ResponseEntity<UserDto> responseEntity = userService.update(userDto, UriComponentsBuilder.fromUri(uri));
+
+        // Assertions
+        assertNotNull(responseEntity);
+        assertEquals(404, responseEntity.getStatusCodeValue());
     }
 
     private UserDto createUserDto(int familyId) {
