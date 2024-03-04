@@ -11,9 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.Optional;
 
@@ -98,19 +96,17 @@ public class UserServiceTest {
         UserDto userDto = createUserDto(1);
         User user = userDto.converter();
 
-        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8080/users/update/{cpf}").buildAndExpand(user.getCpf()).toUri();
-
         // Mock behavior
         when(userRepositoryMock.findById(any())).thenReturn(Optional.of(user));
         when(familyRepositoryMock.findById(anyInt())).thenReturn(Optional.ofNullable(user.getFamily()));
         when(userRepositoryMock.save(any(User.class))).thenReturn(user);
 
         // Call the method
-        ResponseEntity<UserDto> responseEntity = userService.update(userDto, UriComponentsBuilder.fromUri(uri));
+        ResponseEntity<UserDto> responseEntity = userService.update(userDto);
 
         // Assertions
         assertNotNull(responseEntity);
-        assertEquals(201, responseEntity.getStatusCodeValue());
+        assertEquals(200, responseEntity.getStatusCodeValue());
     }
 
     @Test
@@ -119,8 +115,6 @@ public class UserServiceTest {
         UserDto userDto = createUserDto(1);
         User user = userDto.converter();
 
-        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8080/users/update/{cpf}").buildAndExpand(user.getCpf()).toUri();
-
         // Mock behavior
         when(userRepositoryMock.findById(any())).thenReturn(Optional.of(user));
         when(familyRepositoryMock.findById(anyInt())).thenReturn(Optional.empty());
@@ -128,7 +122,7 @@ public class UserServiceTest {
         // Assertions
         try {
             // Call the method
-            ResponseEntity<UserDto> responseEntity = userService.update(userDto, UriComponentsBuilder.fromUri(uri));
+            ResponseEntity<UserDto> responseEntity = userService.update(userDto);
             fail("Não deu a exception");
         } catch (Exception e) {
             assertEquals("Não existe uma família com esse ID: " + user.getFamily().getId(), e.getMessage());
@@ -141,13 +135,11 @@ public class UserServiceTest {
         UserDto userDto = createUserDto(1);
         User user = userDto.converter();
 
-        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8080/users/update/{cpf}").buildAndExpand(user.getCpf()).toUri();
-
         // Mock behavior
         when(userRepositoryMock.findById(any())).thenReturn(Optional.empty());
 
         // Call the method
-        ResponseEntity<UserDto> responseEntity = userService.update(userDto, UriComponentsBuilder.fromUri(uri));
+        ResponseEntity<UserDto> responseEntity = userService.update(userDto);
 
         // Assertions
         assertNotNull(responseEntity);

@@ -5,7 +5,6 @@ import com.meva.finance.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/users")
@@ -23,7 +22,7 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<UserDto> update(@RequestBody UserDto userDto, UriComponentsBuilder builder) {
-        return userService.update(userDto, builder);
+    public ResponseEntity<UserDto> update(@RequestBody UserDto userDto) {
+        return userService.update(userDto);
     }
 }

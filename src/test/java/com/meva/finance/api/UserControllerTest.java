@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Date;
 
@@ -50,13 +49,14 @@ public class UserControllerTest {
         // User, UriComponentsBuilder e Response Entity
         UserDto userDto = createUserDto();
         ResponseEntity<UserDto> userDtoResponseEntity = ResponseEntity.ok().build();
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/users/update/{cpf}");
 
         // Mock behavior
-        when(userServiceMock.update(userDto, builder)).thenReturn(userDtoResponseEntity);
+        when(userServiceMock.update(userDto)).thenReturn(userDtoResponseEntity);
+        //when(userServiceMock.update(any(UserDto.class))).thenReturn(userDtoResponseEntity);
+
 
         // Call the method
-        ResponseEntity<UserDto> responseEntity = userController.update(userDto, builder);
+        ResponseEntity<UserDto> responseEntity = userController.update(userDto);
 
         // Assertions
         assertNotNull(responseEntity);
