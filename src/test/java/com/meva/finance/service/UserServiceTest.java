@@ -17,8 +17,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
     private UserService userService;
@@ -35,17 +34,22 @@ public class UserServiceTest {
 
     @Test
     void testRegisterUserWhenFamilyIdIsZero() {
-        // User and Family DTOs
+        // User DTOs
         UserDto userDto = createUserDto(0);
         User user = userDto.converter();
 
         // Mock behavior
+        when(familyRepositoryMock.findById(anyInt())).thenReturn(Optional.empty());
+        //when(familyRepositoryMock.findById(user.getFamily().getId())).thenReturn(Optional.empty());
         when(familyRepositoryMock.save(any(Family.class))).thenReturn(user.getFamily());
         when(userRepositoryMock.save(any(User.class))).thenReturn(user);
-        //when(familyRepositoryMock.findById(userDto.getFamilyDto().getId())).thenReturn(Optional.empty());
 
         // Call the method
         ResponseEntity<UserDto> responseEntity = userService.register(userDto);
+
+        //Verifications
+        verify(familyRepositoryMock, times(1)).save(any(Family.class));
+        verify(userRepositoryMock, times(1)).save(any(User.class));
 
         // Assertions
         assertNotNull(responseEntity);
@@ -54,7 +58,7 @@ public class UserServiceTest {
 
     @Test
     void testRegisterUserWhenFamilyIsPresent() {
-        // User and Family DTOs
+        // User DTOs
         UserDto userDto = createUserDto(1);
         User user = userDto.converter();
 
@@ -65,6 +69,10 @@ public class UserServiceTest {
         // Call the method
         ResponseEntity<UserDto> responseEntity = userService.register(userDto);
 
+        //Verifications
+        verify(userRepositoryMock, times(1)).save(user);
+        verify(familyRepositoryMock, never()).save(any(Family.class));
+
         // Assertions
         assertNotNull(responseEntity);
         assertEquals(200, responseEntity.getStatusCodeValue());
@@ -72,7 +80,7 @@ public class UserServiceTest {
 
     @Test
     void testRegisterException() {
-        // User and Family DTOs
+        // User DTOs
         UserDto userDto = createUserDto(1);
         User user = userDto.converter();
 
@@ -86,9 +94,9 @@ public class UserServiceTest {
             fail("Não deu a exception");
         } catch (Exception e) {
             assertEquals("Não existe uma família com esse ID: " + user.getFamily().getId(), e.getMessage());
+            verify(userRepositoryMock, never()).save(any(User.class));
         }
     }
-
 
     @Test
     void testUpdateWhenUserAndFamilyIsPresent() {
@@ -97,16 +105,22 @@ public class UserServiceTest {
         User user = userDto.converter();
 
         // Mock behavior
-        when(userRepositoryMock.findById(any())).thenReturn(Optional.of(user));
+        when(userRepositoryMock.findById(anyString())).thenReturn(Optional.of(user));
         when(familyRepositoryMock.findById(anyInt())).thenReturn(Optional.ofNullable(user.getFamily()));
         when(userRepositoryMock.save(any(User.class))).thenReturn(user);
 
         // Call the method
         ResponseEntity<UserDto> responseEntity = userService.update(userDto);
 
+        //Verifications
+        verify(userRepositoryMock, times(1)).findById(user.getCpf());
+        verify(familyRepositoryMock, times(1)).findById(user.getFamily().getId());
+        verify(userRepositoryMock, times(1)).save(user);
+
         // Assertions
         assertNotNull(responseEntity);
         assertEquals(200, responseEntity.getStatusCodeValue());
+        assertEquals(ResponseEntity.ok(new UserDto(user)), responseEntity);
     }
 
     @Test
@@ -116,7 +130,7 @@ public class UserServiceTest {
         User user = userDto.converter();
 
         // Mock behavior
-        when(userRepositoryMock.findById(any())).thenReturn(Optional.of(user));
+        when(userRepositoryMock.findById(anyString())).thenReturn(Optional.of(user));
         when(familyRepositoryMock.findById(anyInt())).thenReturn(Optional.empty());
 
         // Assertions
@@ -126,6 +140,8 @@ public class UserServiceTest {
             fail("Não deu a exception");
         } catch (Exception e) {
             assertEquals("Não existe uma família com esse ID: " + user.getFamily().getId(), e.getMessage());
+            verify(userRepositoryMock, never()).save(any(User.class));
+            verify(familyRepositoryMock, never()).save(any(Family.class));
         }
     }
 
@@ -140,6 +156,10 @@ public class UserServiceTest {
 
         // Call the method
         ResponseEntity<UserDto> responseEntity = userService.update(userDto);
+
+        //Verifications
+        verify(userRepositoryMock, never()).save(any(User.class));
+        verify(familyRepositoryMock, never()).save(any(Family.class));
 
         // Assertions
         assertNotNull(responseEntity);

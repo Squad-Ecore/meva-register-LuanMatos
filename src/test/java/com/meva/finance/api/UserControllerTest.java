@@ -13,7 +13,7 @@ import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class UserControllerTest {
     private UserController userController;
@@ -39,6 +39,9 @@ public class UserControllerTest {
         // Call the method
         ResponseEntity<UserDto> responseEntity = userController.register(userDto);
 
+        // Verifications
+        verify(userServiceMock, times(1)).register(userDto);
+
         // Assertions
         assertNotNull(responseEntity);
         assertEquals(200, responseEntity.getStatusCodeValue());
@@ -46,7 +49,7 @@ public class UserControllerTest {
 
     @Test
     void testUpdateSuccessfully() {
-        // User, UriComponentsBuilder e Response Entity
+        // User and Response Entity
         UserDto userDto = createUserDto();
         ResponseEntity<UserDto> userDtoResponseEntity = ResponseEntity.ok().build();
 
@@ -54,9 +57,11 @@ public class UserControllerTest {
         when(userServiceMock.update(userDto)).thenReturn(userDtoResponseEntity);
         //when(userServiceMock.update(any(UserDto.class))).thenReturn(userDtoResponseEntity);
 
-
         // Call the method
         ResponseEntity<UserDto> responseEntity = userController.update(userDto);
+
+        // Verifications
+        verify(userServiceMock, times(1)).update(userDto);
 
         // Assertions
         assertNotNull(responseEntity);
