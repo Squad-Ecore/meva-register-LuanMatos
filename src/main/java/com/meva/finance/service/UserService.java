@@ -64,6 +64,18 @@ public class UserService implements InterfaceService<UserDto> {
         }
     }
 
+    @Transactional
+    public ResponseEntity<?> delete(String cpf) {
+        Optional<User> userOptional = userRepository.findById(cpf);
+
+        if (userOptional.isPresent()) {
+            userRepository.deleteById(cpf);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     private ResponseEntity<UserDto> registerNewFamilyAndUser(UserDto userDto, User user) {
         Family newFamily = createAndSaveNewFamily(userDto);
         user.setFamily(newFamily);

@@ -25,4 +25,9 @@ public class UserController {
     public ResponseEntity<UserDto> update(@RequestBody UserDto userDto) {
         return userService.update(userDto);
     }
+
+    @DeleteMapping("/delete/{cpf}")
+    public ResponseEntity<?> delete(@PathVariable String cpf) {
+        return userService.delete(cpf);
+    }
 }

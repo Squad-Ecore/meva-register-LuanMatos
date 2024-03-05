@@ -6,4 +6,6 @@ public interface InterfaceService<T> {
     ResponseEntity<T> register(T dto);
 
     ResponseEntity<T> update(T dto);
+
+    ResponseEntity<?> delete(String cpf);
 }
