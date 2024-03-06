@@ -51,10 +51,9 @@ public class UserControllerTest {
     void testUpdateSuccessfully() {
         // User and Response Entity
         UserDto userDto = createUserDto();
-        ResponseEntity<UserDto> userDtoResponseEntity = ResponseEntity.ok().build();
 
         // Mock behavior
-        when(userServiceMock.update(userDto)).thenReturn(userDtoResponseEntity);
+        when(userServiceMock.update(userDto)).thenReturn(ResponseEntity.ok(userDto));
         //when(userServiceMock.update(any(UserDto.class))).thenReturn(userDtoResponseEntity);
 
         // Call the method
@@ -62,6 +61,47 @@ public class UserControllerTest {
 
         // Verifications
         verify(userServiceMock, times(1)).update(userDto);
+
+        // Assertions
+        assertNotNull(responseEntity);
+        assertEquals(200, responseEntity.getStatusCodeValue());
+        assertEquals(userDto, responseEntity.getBody());
+    }
+
+    @Test
+    void testSearchByCpfSuccessfully() {
+        // User and String
+        UserDto userDto = createUserDto();
+        String cpf = "47858747858";
+
+        // Mock behavior
+        when(userServiceMock.searchByCpf(cpf)).thenReturn(ResponseEntity.ok(userDto));
+
+        // Call the method
+        ResponseEntity<UserDto> responseEntity = userController.searchByCpf(cpf);
+
+        // Verifications
+        verify(userServiceMock, times(1)).searchByCpf(cpf);
+
+        // Assertions
+        assertNotNull(responseEntity);
+        assertEquals(200, responseEntity.getStatusCodeValue());
+        assertEquals(userDto, responseEntity.getBody());
+    }
+
+    @Test
+    void testDeleteSuccessfully() {
+        // String
+        String cpf = "47858747858";
+
+        // Mock behavior
+        when(userServiceMock.delete(cpf)).thenReturn(ResponseEntity.ok().build());
+
+        // Call the method
+        ResponseEntity<?> responseEntity = userController.delete(cpf);
+
+        // Verifications
+        verify(userServiceMock, times(1)).delete(cpf);
 
         // Assertions
         assertNotNull(responseEntity);

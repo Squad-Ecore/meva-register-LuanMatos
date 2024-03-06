@@ -166,6 +166,86 @@ public class UserServiceTest {
         assertEquals(404, responseEntity.getStatusCodeValue());
     }
 
+    @Test
+    void testDeleteWhenUserIsPresent() {
+        // User DTOs
+        UserDto userDto = createUserDto(1);
+        User user = userDto.converter();
+        String cpf = "47858747858";
+
+        // Mock behavior
+        when(userRepositoryMock.findById(cpf)).thenReturn(Optional.ofNullable(user));
+
+        // Call the method
+        ResponseEntity<?> responseEntity = userService.delete(cpf);
+
+        //Verifications
+        verify(userRepositoryMock, times(1)).deleteById(cpf);
+
+        // Assertions
+        assertNotNull(responseEntity);
+        assertEquals(200, responseEntity.getStatusCodeValue());
+    }
+
+    @Test
+    void testDeleteWhenUserIsNotPresent() {
+        // String
+        String cpf = "47858747858";
+
+        // Mock behavior
+        when(userRepositoryMock.findById(cpf)).thenReturn(Optional.empty());
+
+        // Call the method
+        ResponseEntity<?> responseEntity = userService.delete(cpf);
+
+        //Verifications
+        verify(userRepositoryMock, never()).deleteById(cpf);
+
+        // Assertions
+        assertNotNull(responseEntity);
+        assertEquals(404, responseEntity.getStatusCodeValue());
+    }
+
+    @Test
+    void testSearchWhenUserIsPresent() {
+        // User DTOs
+        UserDto userDto = createUserDto(1);
+        User user = userDto.converter();
+        String cpf = "47858747858";
+
+        // Mock behavior
+        when(userRepositoryMock.findById(cpf)).thenReturn(Optional.ofNullable(user));
+
+        // Call the method
+        ResponseEntity<?> responseEntity = userService.searchByCpf(cpf);
+
+        //Verifications
+        verify(userRepositoryMock, times(1)).findById(cpf);
+
+        // Assertions
+        assertNotNull(responseEntity);
+        assertEquals(ResponseEntity.ok(new UserDto(user)), responseEntity);
+    }
+
+    @Test
+    void testSearchWhenUserIsNotPresent() {
+        // String
+        String cpf = "47858747858";
+
+        // Mock behavior
+        when(userRepositoryMock.findById(cpf)).thenReturn(Optional.empty());
+
+        // Call the method
+        ResponseEntity<?> responseEntity = userService.searchByCpf(cpf);
+
+        //Verifications
+        verify(userRepositoryMock, times(1)).findById(cpf);
+
+        // Assertions
+        assertNotNull(responseEntity);
+        assertEquals(404, responseEntity.getStatusCodeValue());
+    }
+
     private UserDto createUserDto(int familyId) {
         UserDto userDto = new UserDto();
         userDto.setCpf("47858747858");
