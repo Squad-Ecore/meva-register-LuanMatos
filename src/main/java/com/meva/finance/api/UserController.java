@@ -26,6 +26,11 @@ public class UserController {
         return userService.update(userDto);
     }
 
+    @GetMapping("/search/{cpf}")
+    public ResponseEntity<UserDto> searchByCpf(@PathVariable String cpf) {
+        return userService.searchByCpf(cpf);
+    }
+
     @DeleteMapping("/delete/{cpf}")
     public ResponseEntity<?> delete(@PathVariable String cpf) {
         return userService.delete(cpf);

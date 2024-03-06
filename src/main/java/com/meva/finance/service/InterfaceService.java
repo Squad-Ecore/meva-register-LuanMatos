@@ -8,4 +8,6 @@ public interface InterfaceService<T> {
     ResponseEntity<T> update(T dto);
 
     ResponseEntity<?> delete(String cpf);
+
+    ResponseEntity<T> searchByCpf(String cpf);
 }

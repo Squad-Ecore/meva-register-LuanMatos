@@ -65,6 +65,17 @@ public class UserService implements InterfaceService<UserDto> {
     }
 
     @Transactional
+    public ResponseEntity<UserDto> searchByCpf(String cpf) {
+        Optional<User> userOptional = userRepository.findById(cpf);
+
+        if (userOptional.isPresent()) {
+            return ResponseEntity.ok(new UserDto(userOptional.get()));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Transactional
     public ResponseEntity<?> delete(String cpf) {
         Optional<User> userOptional = userRepository.findById(cpf);
 
